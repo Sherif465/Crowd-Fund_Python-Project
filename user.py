@@ -2,20 +2,13 @@ import re
 
 class User:
     is_active = ""
-    def __init__(self, first_name, last_name, email, password, confirm_password, mobile_number):
+    def __init__(self, first_name=None, last_name=None, email=None, password=None, confirm_password=None, mobile_number=None):
         self.first_name = first_name
         self.last_name = last_name
         self.email = email
         self.password = password
         self.confirm_password = confirm_password
         self.mobile_number = mobile_number
-    
-    def is_valid_password(self):
-        if len(self.password) < 8:
-            return False
-        if self.password != self.confirm_password:
-            return False
-        return True
     
     def is_valid_mobile_number(self):
         return bool(re.match(r'^(010|011|012|015)\d{8}$', self.mobile_number)) # validate against Egyptian phone numbers
@@ -29,23 +22,80 @@ class AuthenticationSystem:
         self.file_path = file_path
         self.load_users_from_file()
     
-    def register(self, first_name, last_name, email, password, confirm_password, mobile_number):
-        user = User(first_name, last_name, email, password, confirm_password, mobile_number)
-        if user.is_valid_password() and user.is_valid_mobile_number() and user.is_valid_email():
-            if not any(u['email'] == email for u in self.users):
-                self.users.append({
-                "first_name": user.first_name,
-                "last_name": user.last_name,
-                "email": user.email,
-                "password": user.password,
-                "mobile_number": user.mobile_number
-                })
-                self.save_users_to_file()
-                print("Registration successful.")
+    def register(self):
+        first_name = ""
+        while not first_name:
+            first_name = input("Enter your first name: ")
+            if not first_name:
+                print("First name is required.")
+            elif not isinstance(first_name, str):
+                print("Invalid first name format.")
+                first_name = ""
+            elif len(first_name) < 3:
+                print("First name should be at least 3 characters.")
+                first_name = ""
 
-            else: print("Email already exists.")
-        else:
-            print("Registration failed.")
+        last_name = ""
+        while not last_name:
+            last_name = input("Enter your last name: ")
+            if not last_name:
+                print("Last name is required.")
+            elif not isinstance(last_name, str):
+                print("Invalid last name format.")
+                last_name = ""
+            elif len(last_name) < 3:
+                print("Last name should be at least 3 characters.")
+                last_name = ""
+                
+        email = ""
+        while not email:
+            email = input("Enter your email: ")
+            if not email:
+                print("Email is required.")
+            elif not User(email=email).is_valid_email():
+                print("Invalid email format.")
+            elif any(u['email'] == email for u in self.users):
+                print("Email already exists.")
+                email = ""
+                
+        password = ""
+        while not password:
+            password = input("Enter your password (minimum 8 characters): ")
+            if not password:
+                print("Password is required.")
+            elif len(password) < 8:
+                print("Password should be at least 8 characters.")
+                password = ""
+
+        confirm_password = ""
+        while not confirm_password:
+            confirm_password = input("Confirm your password: ")
+            if not confirm_password:
+                print("Confirmation is required.")
+            elif password != confirm_password:
+                print("Passwords do not match.")
+                confirm_password = ""
+
+        mobile_number = ""
+        while not mobile_number:
+            mobile_number = input("Enter your mobile number (11 digits starting with 010, 011, 012, or 015): ")
+            if not mobile_number:
+                print("Mobile number is required.")
+            elif not User(mobile_number=mobile_number).is_valid_mobile_number():
+                print("Invalid mobile number format.")
+                mobile_number = ""
+
+        user = User(first_name, last_name, email, password, confirm_password, mobile_number)
+        self.users.append({
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "email": user.email,
+            "password": user.password,
+            "mobile_number": user.mobile_number
+        })
+        self.save_users_to_file()
+        print("Registration successful.")
+
 
     def save_users_to_file(self):
         with open(self.file_path, "w") as f:
@@ -85,28 +135,52 @@ class AuthenticationSystem:
             else:
                 print("User not found.")
 
-    def login(self, email, password):
+    def login(self):
+
+        if User.is_active:
+            print("Another user is already logged in. Please log out first.")
+            return
+    
+        email = input("Enter your email: ")
         for user in self.users:
-            if user["email"] == email and user["password"] == password and User.is_active == "":
-                print("Login successful.")
-                User.is_active = email
-                return
+            if user["email"] == email:
+                password = input("Enter your password: ")
+                if user["password"] == password:
+                    print("Login successful.")
+                    User.is_active = email
+                    print(f"Current user is: {User.is_active}")
+                    return
         print("Login failed.")
 
     def logout(self):
-        reply = input("Do you want to log out? (y/n)" )
-        if reply == "y":
-            print("You have been logged out")
-            User.is_active = ""
+        if User.is_active:
+            reply = input("Do you want to log out? (y/n)" )
+            if reply == "y":
+                print("You have been logged out")
+                User.is_active = ""
+        else: print("no user is logged ")
         
-
-
+### Running program ###        
 auth_sys = AuthenticationSystem("users.txt")
 
-# Register multiple users
-auth_sys.register("John", "Doe", "johe@example.com", "password123", "password123", "01912345678")
-auth_sys.register("marwan", "Doe", "man@example.com", "password456", "password456", "01012345678")
-auth_sys.register("Bob", "Smith", "bobsmith@example.com", "password789", "password789", "01212345678")
+def menu():
+    while True:
+        print("1. Register")
+        print("2. Log in")
+        print("3. Log out")
+        print("4. Exit")
+        choice = input("Enter your choice: ")
+        
+        if choice == "1":
+            auth_sys.register()
+        elif choice == "2":
+            auth_sys.login()
+        elif choice == "3":
+            auth_sys.logout()
+        elif choice == "4":
+            print("Exiting...")
+            break
+        else:
+            print("Invalid choice. Please try again.")
 
-# Retrieve the list of registered users
-auth_sys.print_users()
+menu()
