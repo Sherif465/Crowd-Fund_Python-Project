@@ -66,7 +66,8 @@ class User_Options:
         for filename in os.scandir(projects_directory):
             if filename.is_file():
                 fname = filename.name
-                print(Fore.BLUE + '{:30s}'.format("|" + fname + " Projects"))
+                temp = fname[:-4]
+                print(Fore.BLUE + '{:30s}'.format("|" + temp + " Projects"))
                 print(Fore.GREEN)
                 self.view_user_projects(fname, False)
         print(Style.RESET_ALL)
@@ -119,6 +120,10 @@ class User_Options:
     def edit_project(self):
         records = self.view_user_projects(self.uEmail, True)
         ans = int(input("Enter number of project to edit: "))
+        # ans = (input("Enter number of project to edit: "))
+        # if not ans.isdigit():
+        #     print("Invalid input format")
+        #     return
         if ans > len(records) or ans < 1:
             print("Invalid project number!")
         else:
@@ -151,7 +156,6 @@ class User_Options:
                     entry = self.validate(field, entry)
             if field == "end_date":
                 entry = self.validate(field, entry)
-                print(entry + " " + record[-1])
                 while entry < record[-1]: 
                     print("Invalid as end date should be after start date.")
                     entry = input(f"Enter project {field}: ")

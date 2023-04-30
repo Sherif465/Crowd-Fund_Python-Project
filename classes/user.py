@@ -1,4 +1,6 @@
 import re
+import stdiomask
+
 
 class User:
     is_active = ""
@@ -53,6 +55,7 @@ class AuthenticationSystem:
             if not email:
                 print("Email is required.")
             elif not User(email=email).is_valid_email():
+                email = ""
                 print("Invalid email format.")
             elif any(u['email'] == email for u in self.users):
                 print("Email already exists.")
@@ -60,7 +63,8 @@ class AuthenticationSystem:
                 
         password = ""
         while not password:
-            password = input("Enter your password (minimum 8 characters): ")
+            password = stdiomask.getpass("Enter password (minimum 8 characters): ")
+            # password = input("Enter your password (minimum 8 characters): ")
             if not password:
                 print("Password is required.")
             elif len(password) < 8:
@@ -69,7 +73,8 @@ class AuthenticationSystem:
 
         confirm_password = ""
         while not confirm_password:
-            confirm_password = input("Confirm your password: ")
+            confirm_password = stdiomask.getpass("Confirm your password: ")
+            # confirm_password = input("Confirm your password: ")
             if not confirm_password:
                 print("Confirmation is required.")
             elif password != confirm_password:
@@ -144,7 +149,8 @@ class AuthenticationSystem:
         email = input("Enter your email: ")
         for user in self.users:
             if user["email"] == email:
-                password = input("Enter your password: ")
+                password = stdiomask.getpass("Enter password: ")
+                # password = input("Enter your password: ")
                 if user["password"] == password:
                     print("Login successful.")
                     User.is_active = email
@@ -152,6 +158,7 @@ class AuthenticationSystem:
                     # main.second_menu(User.is_active)
                     return User.is_active
         print("Login failed.")
+        return 
 
     def logout(self):
         if User.is_active:
