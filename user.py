@@ -164,4 +164,3 @@ class AuthenticationSystem:
 ### Running program ###        
 auth_sys = AuthenticationSystem("users.txt")
 
-menu()
