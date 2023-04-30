@@ -1,5 +1,5 @@
 import re
-
+import menu
 class User:
     is_active = ""
     def __init__(self, first_name=None, last_name=None, email=None, password=None, confirm_password=None, mobile_number=None):
@@ -158,29 +158,10 @@ class AuthenticationSystem:
             if reply == "y":
                 print("You have been logged out")
                 User.is_active = ""
+                menu.second_menu()
         else: print("no user is logged ")
         
 ### Running program ###        
 auth_sys = AuthenticationSystem("users.txt")
-
-def menu():
-    while True:
-        print("1. Register")
-        print("2. Log in")
-        print("3. Log out")
-        print("4. Exit")
-        choice = input("Enter your choice: ")
-        
-        if choice == "1":
-            auth_sys.register()
-        elif choice == "2":
-            auth_sys.login()
-        elif choice == "3":
-            auth_sys.logout()
-        elif choice == "4":
-            print("Exiting...")
-            break
-        else:
-            print("Invalid choice. Please try again.")
 
 menu()
